@@ -11,7 +11,7 @@ public sealed class Habit
     public HabitStatus Status { get; set; }
     public bool IsArchived { get; set; }
     public DateOnly? EndDate { get; set; }
-    public MileStone? MileStone { get; set; }
+    public MileStone? Milestone { get; set; }
     public DateTime CreatedAtUtc { get; set; }
     public DateTime? UpdatedAtUtc { get; set; }
     public DateTime? LastCompletedAtUtc { get; set; }
