@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DevHabit.Api.Migrations.Application
 {
     /// <inheritdoc />
-    public partial class AddHabits : Migration
+    public partial class AddTagsandHabits : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,8 +31,8 @@ namespace DevHabit.Api.Migrations.Application
                     status = table.Column<int>(type: "integer", nullable: false),
                     is_archived = table.Column<bool>(type: "boolean", nullable: false),
                     end_date = table.Column<DateOnly>(type: "date", nullable: true),
-                    mile_stone_target = table.Column<int>(type: "integer", nullable: true),
-                    mile_stone_current = table.Column<int>(type: "integer", nullable: true),
+                    milestone_target = table.Column<int>(type: "integer", nullable: true),
+                    milestone_current = table.Column<int>(type: "integer", nullable: true),
                     created_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     last_completed_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -41,6 +41,29 @@ namespace DevHabit.Api.Migrations.Application
                 {
                     table.PrimaryKey("pk_habits", x => x.id);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "tags",
+                schema: "dev_habit",
+                columns: table => new
+                {
+                    id = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    created_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_tags", x => x.id);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_tags_name",
+                schema: "dev_habit",
+                table: "tags",
+                column: "name",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -48,6 +71,10 @@ namespace DevHabit.Api.Migrations.Application
         {
             migrationBuilder.DropTable(
                 name: "habits",
+                schema: "dev_habit");
+
+            migrationBuilder.DropTable(
+                name: "tags",
                 schema: "dev_habit");
         }
     }

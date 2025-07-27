@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DevHabit.Api.Migrations.Application
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250725213448_Add-Habits")]
-    partial class AddHabits
+    [Migration("20250727114944_Add-Tags-and-Habits")]
+    partial class AddTagsandHabits
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -78,6 +78,42 @@ namespace DevHabit.Api.Migrations.Application
                     b.ToTable("habits", "dev_habit");
                 });
 
+            modelBuilder.Entity("DevHabit.Api.Entities.Tag", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("name");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tags");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_tags_name");
+
+                    b.ToTable("tags", "dev_habit");
+                });
+
             modelBuilder.Entity("DevHabit.Api.Entities.Habit", b =>
                 {
                     b.OwnsOne("DevHabit.Api.Entities.Frequency", "Frequency", b1 =>
@@ -103,7 +139,7 @@ namespace DevHabit.Api.Migrations.Application
                                 .HasConstraintName("fk_habits_habits_id");
                         });
 
-                    b.OwnsOne("DevHabit.Api.Entities.MileStone", "MileStone", b1 =>
+                    b.OwnsOne("DevHabit.Api.Entities.MileStone", "Milestone", b1 =>
                         {
                             b1.Property<string>("HabitId")
                                 .HasColumnType("character varying(500)")
@@ -111,11 +147,11 @@ namespace DevHabit.Api.Migrations.Application
 
                             b1.Property<int>("Current")
                                 .HasColumnType("integer")
-                                .HasColumnName("mile_stone_current");
+                                .HasColumnName("milestone_current");
 
                             b1.Property<int>("Target")
                                 .HasColumnType("integer")
-                                .HasColumnName("mile_stone_target");
+                                .HasColumnName("milestone_target");
 
                             b1.HasKey("HabitId");
 
@@ -154,7 +190,7 @@ namespace DevHabit.Api.Migrations.Application
                     b.Navigation("Frequency")
                         .IsRequired();
 
-                    b.Navigation("MileStone");
+                    b.Navigation("Milestone");
 
                     b.Navigation("Target")
                         .IsRequired();
