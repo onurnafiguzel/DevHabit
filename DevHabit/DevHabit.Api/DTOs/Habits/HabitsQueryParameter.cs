@@ -10,6 +10,7 @@ public sealed record HabitsQueryParameter
     public HabitStatus? Status { get; set; }
     public HabitType? Type { get; set; }
     public string? Sort { get; init; }
+    public string? Fields { get; init; }
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 10;
 }
