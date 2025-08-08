@@ -1,5 +1,6 @@
 ﻿using System.Dynamic;
 using System.Linq.Dynamic.Core;
+using System.Net.Mime;
 using DevHabit.Api.Database;
 using DevHabit.Api.DTOs.Common;
 using DevHabit.Api.DTOs.Habits;
@@ -20,6 +21,7 @@ public sealed class HabitsController(
     LinkService linkService) : ControllerBase
 {
     [HttpGet]
+    [Produces(MediaTypeNames.Application.Json, CustomMediaTypeNames.Application.HateoasJson)]
     public async Task<IActionResult> GetHabits(
         [FromQuery] HabitsQueryParameter query,
         SortMappingProvider sortMappingProvider,
@@ -60,21 +62,26 @@ public sealed class HabitsController(
             .Take(query.PageSize)
             .ToListAsync();
 
+        bool includeLinks = query.Accept == CustomMediaTypeNames.Application.HateoasJson;
+
         var paginationResult = new PaginationResult<ExpandoObject>
         {
             Items = dataShapingService.ShapeCollectionData(
                 habits,
                 query.Fields,
-                h => CreateLinksForHabit(h.Id, query.Fields)),
+                includeLinks ? h => CreateLinksForHabit(h.Id, query.Fields) : null),
             Page = query.Page,
             PageSize = query.PageSize,
             TotalCount = totalCount,
         };
 
-        paginationResult.Links = CreateLinksForHabits(
-              query,
-              paginationResult.HasNextPage,
-              paginationResult.HasPreviousPage);
+        if (includeLinks)
+        {
+            paginationResult.Links = CreateLinksForHabits(
+                       query,
+                       paginationResult.HasNextPage,
+                       paginationResult.HasPreviousPage);
+        }
 
         return Ok(paginationResult);
     }
@@ -83,6 +90,8 @@ public sealed class HabitsController(
     public async Task<IActionResult> GetHabit(
         string id,
         string? fields,
+        [FromHeader(Name ="Accept")]
+        string? accept,
         DataShapingService dataShapingService)
     {
         if (!dataShapingService.Validate<HabitWithTagsDto>(fields))
@@ -105,9 +114,12 @@ public sealed class HabitsController(
 
         ExpandoObject shapedHabitDto = dataShapingService.ShapeData(habit, fields);
 
-        List<LinkDto> links = CreateLinksForHabit(id, fields);
+        if (accept == CustomMediaTypeNames.Application.HateoasJson)
+        {
+            List<LinkDto> links = CreateLinksForHabit(id, fields);
 
-        shapedHabitDto.TryAdd("links", links);
+            shapedHabitDto.TryAdd("links", links);
+        }
 
         return Ok(shapedHabitDto);
     }

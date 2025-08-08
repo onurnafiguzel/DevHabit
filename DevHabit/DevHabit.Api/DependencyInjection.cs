@@ -5,6 +5,8 @@ using DevHabit.Api.Middleware;
 using DevHabit.Api.Services;
 using DevHabit.Api.Services.Sorting;
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Newtonsoft.Json.Serialization;
@@ -16,7 +18,7 @@ using OpenTelemetry.Trace;
 
 namespace DevHabit.Api;
 
-public static class DependencyInejction
+public static class DependencyInjection
 {
     public static WebApplicationBuilder AddControllers(this WebApplicationBuilder builder)
     {
@@ -26,6 +28,15 @@ public static class DependencyInejction
         })
         .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver())
         .AddXmlSerializerFormatters();
+
+        builder.Services.Configure((Action<MvcOptions>)(options =>
+        {
+            NewtonsoftJsonOutputFormatter formatter = options.OutputFormatters
+                        .OfType<NewtonsoftJsonOutputFormatter>()
+                        .First();
+
+            formatter.SupportedMediaTypes.Add(CustomMediaTypeNames.Application.HateoasJson);
+        }));
 
         builder.Services.AddOpenApi();
 
