@@ -9,6 +9,7 @@ using DevHabit.Api.Entities;
 using DevHabit.Api.Services;
 using DevHabit.Api.Services.Sorting;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,8 @@ namespace DevHabit.Api.Controllers;
 [Route("habits")]
 [ApiVersion(1.0)]
 [ApiVersion(2.0)]
+[Authorize(Roles = Roles.Member)]
+
 public sealed class HabitsController(
     ApplicationDbContext dbContext,
     LinkService linkService,
@@ -345,6 +348,7 @@ public sealed class HabitsController(
     }
     private List<LinkDto> CreateLinksForHabit(string id, string? fields)
     {
+        // User.IsInRole(Roles.Admin);
         List<LinkDto> links =
             [
                 linkService.Create(nameof(GetHabit),"self",HttpMethods.Get,new {id , fields}),
