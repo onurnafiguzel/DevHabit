@@ -68,6 +68,8 @@ public static class DependencyInjections
 
         builder.Services.AddOpenApi();
 
+        builder.Services.AddResponseCaching();
+
         return builder;
     }
 
@@ -163,8 +165,14 @@ public static class DependencyInjections
                 .Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
             });
 
-        builder.Services.Configure<EncryptionOptions>(builder.Configuration.GetSection("Encryption"));
+        builder.Services.Configure<EncryptionOptions>(
+            builder.Configuration.GetSection("Encryption"));
         builder.Services.AddTransient<EncryptionService>();
+
+        builder.Services.Configure<GitHubAutomationOptions>(
+            builder.Configuration.GetSection("GitHubAutomation"));
+
+        builder.Services.AddSingleton<InMemoryETagStore>();
 
         return builder;
     }
