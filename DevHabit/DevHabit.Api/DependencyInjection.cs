@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.Http.Resilience;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Serialization;
 using Npgsql;
@@ -153,6 +154,9 @@ public static class DependencyInjections
 
         builder.Services.AddScoped<GitHubAccessTokenService>();
         builder.Services.AddTransient<GitHubService>();
+
+        builder.Services.AddHttpClient().ConfigureHttpClientDefaults(b => b.AddStandardResilienceHandler());
+
         builder.Services.AddTransient<RefitGitHubService>();
         builder.Services
             .AddHttpClient("github")
@@ -173,6 +177,29 @@ public static class DependencyInjections
                 ContentSerializer = new NewtonsoftJsonContentSerializer()
             })
             .ConfigureHttpClient(client => client.BaseAddress = new Uri("https://api.github.com"));
+        //.InternalRemoveAllResilienceHandlers()
+        //.AddResilienceHandler("custom", pipeline =>
+        //{
+        //    pipeline.AddTimeout(TimeSpan.FromSeconds(5));
+
+        //    pipeline.AddRetry(new HttpRetryStrategyOptions
+        //    {
+        //        MaxRetryAttempts = 3,
+        //        BackoffType = DelayBackoffType.Exponential,
+        //        UseJitter = true,
+        //        Delay = TimeSpan.FromMilliseconds(500)
+        //    });
+
+        //    pipeline.AddCircuitBreaker(new HttpCircuitBreakerStrategyOptions
+        //    {
+        //        SamplingDuration = TimeSpan.FromSeconds(10),
+        //        FailureRatio = 0.9,
+        //        MinimumThroughput = 5,
+        //        BreakDuration = TimeSpan.FromSeconds(5)
+        //    });
+
+        //    pipeline.AddTimeout(TimeSpan.FromSeconds(1));
+        //});
 
         builder.Services.Configure<EncryptionOptions>(
             builder.Configuration.GetSection("Encryption"));
