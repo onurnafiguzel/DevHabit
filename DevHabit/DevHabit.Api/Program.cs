@@ -11,7 +11,8 @@ builder
     .AddObservability()
     .AddApplicationServices()
     .AddAuthenticationServices()
-    .AddBackgroundJobs();
+    .AddBackgroundJobs()
+    .AddRateLimiting();
 
 WebApplication app = builder.Build();
 
@@ -31,6 +32,8 @@ app.UseExceptionHandler();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseRateLimiter();
 
 app.UseMiddleware<ETagMiddleware>();
 
